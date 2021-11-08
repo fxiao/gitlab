@@ -7,7 +7,7 @@ module Gitlab
     end
 
     def count_session_ip
-      Gitlab::Redis::SharedState.with do |redis|
+      redis_store_class.with do |redis|
         redis.pipelined do
           redis.incr(session_lookup_name)
           redis.expire(session_lookup_name, 24.hours)
@@ -16,13 +16,13 @@ module Gitlab
     end
 
     def session_count
-      Gitlab::Redis::SharedState.with do |redis|
+      redis_store_class.with do |redis|
         redis.get(session_lookup_name).to_i
       end
     end
 
     def cleanup_session_per_ip_count
-      Gitlab::Redis::SharedState.with do |redis|
+      redis_store_class.with do |redis|
         redis.del(session_lookup_name)
       end
     end
@@ -31,8 +31,16 @@ module Gitlab
 
     attr_reader :remote_ip
 
+    def redis_store_class
+      use_redis_session_store? ? Gitlab::Redis::Sessions : Gitlab::Redis::SharedState
+    end
+
+    def use_redis_session_store?
+      Gitlab::Utils.to_boolean(ENV['GITLAB_USE_REDIS_SESSIONS_STORE'], default: true)
+    end
+
     def session_lookup_name
-      @session_lookup_name ||= "#{Gitlab::Redis::SharedState::IP_SESSIONS_LOOKUP_NAMESPACE}:#{remote_ip}"
+      @session_lookup_name ||= "#{Gitlab::Redis::Sessions::IP_SESSIONS_LOOKUP_NAMESPACE}:#{remote_ip}"
     end
   end
 end
