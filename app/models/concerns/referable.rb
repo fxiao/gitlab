@@ -31,7 +31,7 @@ module Referable
     to_reference(from, full: full)
   end
 
-  def reference_link_text(from = nil)
+  def reference_link_text(from = nil, format: nil)
     to_reference(from)
   end
 

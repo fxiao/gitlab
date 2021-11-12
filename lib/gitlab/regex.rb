@@ -413,7 +413,7 @@ module Gitlab
     end
 
     def issue
-      @issue ||= /(?<issue>\d+\b)/
+      @issue ||= /(?<issue>\d+)(?:(?<format>\+)|\b)/
     end
 
     def base64_regex

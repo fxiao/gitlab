@@ -263,7 +263,12 @@ module Banzai
 
         def object_link_text(object, matches)
           parent = project || group || user
-          text = object.reference_link_text(parent)
+
+          text = if matches.names.include?("format")
+                   object.reference_link_text(parent, format: matches[:format])
+                 else
+                   object.reference_link_text(parent)
+                 end
 
           extras = object_link_text_extras(object, matches)
           text += " (#{extras.join(", ")})" if extras.any?

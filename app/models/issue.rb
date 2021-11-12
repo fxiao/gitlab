@@ -344,6 +344,14 @@ class Issue < ApplicationRecord
     Gitlab::HookData::IssueBuilder.new(self).build
   end
 
+  def reference_link_text(from = nil, format: nil)
+    if format == '+'
+      super + ' ' + title
+    else
+      super
+    end
+  end
+
   # `from` argument can be a Namespace or Project.
   def to_reference(from = nil, full: false)
     reference = "#{self.class.reference_prefix}#{iid}"
